@@ -1,15 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useProducts } from './hooks/useProducts';
+import { useDebounce } from './hooks/useDebounce';
 
 function App() {
-  const products = useProducts();
+  const [products, setProducts] = useState([]);
 
-  const handleSearch = (query) => {};
+  const handleSearch = (query) => {
+    fetch(
+      `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}`,
+    )
+      .then((res) => res.json())
+      .then((data) => setProducts(data?.products))
+      .catch((error) => console.error(error));
+  };
+
+  const debouncedSearch = useDebounce(handleSearch, 500);
+
+  useEffect(() => {
+    fetch('https://dummyjson.com/products')
+      .then((res) => res.json())
+      .then((data) => setProducts(data?.products))
+      .catch((error) => console.error(error));
+  }, []);
 
   return (
     <div>
       <h1>Products</h1>
-      <input type='text' onChange={(e) => handleSearch(e.target.value)} />
+      <input type='text' onChange={(e) => debouncedSearch(e.target.value)} />
       <ul>
         {products.map((product) => (
           <li key={product.id}>{product.title}</li>
@@ -20,3 +36,5 @@ function App() {
 }
 
 export default App;
+
+// user queries -> debounce will fetch title and display in dropdown
