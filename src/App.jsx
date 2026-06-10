@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useDebounce } from './hooks/useDebounce';
+import { debounce } from './utils/debounce';
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -13,7 +13,7 @@ function App() {
       .catch((error) => console.error(error));
   };
 
-  const debouncedSearch = useDebounce(handleSearch, 500);
+  const debouncedSearch = debounce(handleSearch, 500);
 
   useEffect(() => {
     fetch('https://dummyjson.com/products')
