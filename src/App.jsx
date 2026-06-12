@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { debounce } from './utils/debounce';
-import { useSearch } from './hooks/useSearch';
+import { filterSuggestions } from './utils/filterSuggestions';
 
 const App = ({ placeholder, suggestions }) => {
   const [query, setQuery] = useState('');
-  const results = useSearch({ query, suggestions });
+  const results = filterSuggestions({ query, suggestions });
   
   const debouncedSearch = useMemo(
     () => debounce((value) => setQuery(value), 1000),

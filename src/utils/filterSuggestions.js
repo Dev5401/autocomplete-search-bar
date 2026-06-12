@@ -1,4 +1,4 @@
-export const useSearch = ({ query, suggestions }) => {
+export const filterSuggestions = ({ query, suggestions }) => {
   if (!query.trim()) {
     return [];
   } else {
