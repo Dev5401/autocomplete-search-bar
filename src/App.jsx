@@ -1,27 +1,20 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { debounce } from './utils/debounce';
+import { useSearch } from './hooks/useSearch';
 
 const App = ({ placeholder, suggestions }) => {
-  const [results, setResults] = useState([]);
-
-  const handleSearch = (query) => {
-    if (!query.trim()) {
-      setResults([]);
-    } else {
-      const filtered = suggestions.filter(
-        (item) =>
-          item.toLowerCase().startsWith(query.toLowerCase()) ||
-          item.toLowerCase() === query.toLowerCase(),
-      );
-      setResults(filtered);
-    }
-  };
-
-  const debouncedSearch = debounce(handleSearch, 1000);
+  const [query, setQuery] = useState('');
+  const results = useSearch({ query, suggestions });
+  
+  const debouncedSearch = useMemo(
+    () => debounce((value) => setQuery(value), 1000),
+    []
+  );
 
   return (
     <div>
       <input
+        className='p-4'
         type='text'
         onChange={(e) => debouncedSearch(e.target.value)}
         placeholder={placeholder}
