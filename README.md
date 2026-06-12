@@ -1,165 +1,80 @@
-# AutocompleteSearchBar
+# Autocomplete Search Bar
 
-A flexible, accessible React component for autocomplete search with keyboard navigation, async data support, and full TypeScript types.
+A lightweight React autocomplete search component built with Vite, Tailwind CSS v4, and Vitest.
 
 ---
 
-## Installation
+## Project Structure
+
+```
+src/
+├── assets/
+│   └── suggestions.json       # Static list of suggestions
+├── utils/
+│   ├── debounce.js            # Debounce utility
+│   └── filterSuggestions.js   # Pure filter function
+├── App.jsx                    # Autocomplete component
+├── main.jsx                   # Entry point
+└── index.css                  # Tailwind import
+```
+
+---
+
+## Getting Started
 
 ```bash
-npm install autocomplete-search-bar
-# or
-yarn add autocomplete-search-bar
+npm install
+npm run dev
 ```
 
 ---
 
-## Quick Start
+## How It Works
 
-```tsx
-import { AutocompleteSearchBar } from 'autocomplete-search-bar';
+`main.jsx` passes a `suggestions` array and a `placeholder` string into `App.jsx`:
 
-const fruits = ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Mango'];
-
-export default function App() {
-  return (
-    <AutocompleteSearchBar
-      suggestions={fruits}
-      placeholder="Search fruits..."
-      onSelect={(value) => console.log('Selected:', value)}
-    />
-  );
-}
-```
-
----
-
-## Props
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `suggestions` | `string[] \| SuggestionItem[]` | `[]` | Static list of suggestions |
-| `onFetchSuggestions` | `(query: string) => Promise<string[] \| SuggestionItem[]>` | — | Async function for dynamic suggestions |
-| `onSelect` | `(value: string \| SuggestionItem) => void` | — | Called when a suggestion is selected |
-| `onSearch` | `(query: string) => void` | — | Called when the user submits a search |
-| `placeholder` | `string` | `"Search..."` | Input placeholder text |
-| `minChars` | `number` | `1` | Minimum characters before suggestions appear |
-| `debounceMs` | `number` | `300` | Debounce delay for `onFetchSuggestions` (ms) |
-| `maxSuggestions` | `number` | `10` | Maximum number of suggestions shown |
-| `highlightMatch` | `boolean` | `true` | Bolds the matching portion of each suggestion |
-| `clearOnSelect` | `boolean` | `false` | Clears the input after a selection |
-| `disabled` | `boolean` | `false` | Disables the input |
-| `loading` | `boolean` | `false` | Shows a loading indicator in the dropdown |
-| `className` | `string` | — | Custom class on the root element |
-| `inputProps` | `React.InputHTMLAttributes<HTMLInputElement>` | — | Passed directly to the `<input>` element |
-
-### SuggestionItem shape
-
-```ts
-interface SuggestionItem {
-  label: string;   // Display text
-  value: string;   // Value passed to onSelect
-  meta?: string;   // Optional secondary text shown in the dropdown
-}
-```
-
----
-
-## Examples
-
-### Async / API-backed suggestions
-
-```tsx
-async function fetchUsers(query: string) {
-  const res = await fetch(`/api/users?q=${encodeURIComponent(query)}`);
-  const users = await res.json();
-  return users.map((u) => ({ label: u.name, value: u.id, meta: u.email }));
-}
-
-<AutocompleteSearchBar
-  onFetchSuggestions={fetchUsers}
-  onSelect={(item) => router.push(`/users/${item.value}`)}
-  debounceMs={200}
-  minChars={2}
-  placeholder="Find a user..."
-/>
-```
-
-### Controlled input
-
-```tsx
-const [query, setQuery] = useState('');
-
-<AutocompleteSearchBar
+```jsx
+<App
+  placeholder="Search..."
   suggestions={suggestions}
-  inputProps={{ value: query, onChange: (e) => setQuery(e.target.value) }}
-  onSelect={(val) => {
-    setQuery(val.label ?? val);
-  }}
 />
 ```
 
-### Custom styling
+`App.jsx` debounces the input, filters suggestions via `filterSuggestions`, and shows a dropdown of matches.
 
-```tsx
-<AutocompleteSearchBar
-  suggestions={data}
-  className="my-search"
-  onSelect={handleSelect}
-/>
-```
+**Debounce** — the input change is debounced by 1000ms before updating `query`, so `filterSuggestions` isn't called on every keystroke.
 
-```css
-.my-search input {
-  border: 2px solid #6c63ff;
-  border-radius: 8px;
-  padding: 10px 14px;
-}
-
-.my-search [role="listbox"] {
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-```
+**Dropdown** — opens when there are matching results, closes when clicking outside or selecting an item. Uses `onMouseDown` instead of `onClick` on list items to prevent the input's blur event from closing the dropdown before the selection registers.
 
 ---
 
-## Keyboard Navigation
+## Utils
 
-| Key | Action |
-|---|---|
-| `↓` / `↑` | Move through suggestions |
-| `Enter` | Select the highlighted suggestion or submit search |
-| `Escape` | Close the dropdown |
-| `Tab` | Close the dropdown and move focus |
+### `filterSuggestions({ query, suggestions })`
 
----
+Pure function. Returns suggestions that start with or exactly match the query (case-insensitive). Returns an empty array when the query is empty or whitespace only.
 
-## Accessibility
+### `debounce(fn, delay)`
 
-- Follows the [ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) (`role="combobox"`, `role="listbox"`, `aria-activedescendant`)
-- Fully keyboard navigable
-- Screen-reader announcements for suggestion count and selection
-- Respects `prefers-reduced-motion`
+Returns a debounced version of `fn` that waits `delay` ms after the last call before executing.
 
 ---
 
-## TypeScript
+## Scripts
 
-The package ships full TypeScript types. No `@types/` package needed.
-
-```ts
-import type { AutocompleteSearchBarProps, SuggestionItem } from 'autocomplete-search-bar';
+```bash
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run preview      # Preview production build
+npm test             # Run tests in watch mode
+npm run test:run     # Single test run (CI)
 ```
 
 ---
 
-## Browser Support
+## Tech Stack
 
-Chrome, Firefox, Safari, Edge — all evergreen versions.
-
----
-
-## License
-
-MIT
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/)
+- [Tailwind CSS v4](https://tailwindcss.com/)
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/)
