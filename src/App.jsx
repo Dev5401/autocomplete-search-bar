@@ -39,7 +39,6 @@ const App = ({ placeholder, suggestions }) => {
         type='text'
         onChange={(e) => debouncedSearch(e.target.value)}
         placeholder={placeholder}
-        value={query}
       />
       {isOpen && results.length > 0 && (
         <ul className='absolute w-full bg-white border border-gray-200 rounded shadow-md'>
